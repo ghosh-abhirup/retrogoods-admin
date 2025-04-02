@@ -26,7 +26,7 @@ const validationSchema = Yup.object().shape({
 });
 
 const RegisterModal = () => {
-  const { openLoginModal, closeRegisterModal } = useLoginStore();
+  const { openLoginModal, closeRegisterModal, isRegisterModalOpen } = useLoginStore();
 
   const registerMutation = useMutation({
     mutationFn: (payload: Object) => registerUser(payload),
@@ -47,7 +47,7 @@ const RegisterModal = () => {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isRegisterModalOpen} onOpenChange={closeRegisterModal}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Sign in to your account</DialogTitle>

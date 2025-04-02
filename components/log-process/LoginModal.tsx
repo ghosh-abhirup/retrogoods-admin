@@ -25,7 +25,7 @@ const validationSchema = Yup.object().shape({
 });
 
 const LoginModal = () => {
-  const { openRegisterModal, closeLoginModal } = useLoginStore();
+  const { openRegisterModal, closeLoginModal, isLoginModalOpen } = useLoginStore();
   const { setUser } = useUserStore();
   const router = useRouter();
 
@@ -49,7 +49,7 @@ const LoginModal = () => {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isLoginModalOpen} onOpenChange={closeLoginModal}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Login to your account</DialogTitle>
