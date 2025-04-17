@@ -4,13 +4,19 @@ import { create } from 'zustand';
 interface UserStore {
     user: User | null,
     setUser: (data: User | null) => void
+    isLoader: boolean,
+    showLoader: () => void,
+    hideLoader: () => void,
 }
 
 
 const useUserStore = create<UserStore>((set) => (
     {
         user: null,
-        setUser: (data) => set(() => ({ user: data }))
+        isLoader: true,
+        setUser: (data) => set(() => ({ user: data })),
+        showLoader: () => set({ isLoader: true }),
+        hideLoader: () => set({ isLoader: false }),
     }
 ))
 

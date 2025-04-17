@@ -2,58 +2,71 @@
 
 import React, { useEffect } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
-import UserLogProcess from "./UserLogProcess";
+import { usePathname, useRouter } from "next/navigation";
 import useUserStore from "@/store/UserStore";
-import useLoginStore from "@/store/LoginStore";
 import Cookies from "js-cookie";
 import { useQuery } from "@tanstack/react-query";
 import { getUser } from "@/services/UserServices";
 
 const Navbar = () => {
   const router = useRouter();
-  const { user, setUser } = useUserStore();
-  const { openLoginModal } = useLoginStore();
+  const pathname = usePathname();
+  const { user, setUser, showLoader, hideLoader } = useUserStore();
   const accessToken = Cookies.get("accessToken");
 
-  const { data, isPending } = useQuery({
+  const { data, isPending, isSuccess } = useQuery({
     queryKey: ["user"],
     queryFn: getUser,
     enabled: !!accessToken && !user,
   });
 
   useEffect(() => {
-    if (!user) {
-      openLoginModal();
-    } else {
-      if (data) {
-        setUser(data);
-      }
+    if (!accessToken) {
+      router.push("/login");
+      return;
     }
-  }, [user, data]);
+
+    if (isPending) {
+      showLoader();
+      return;
+    } else {
+      hideLoader();
+    }
+
+    if (!user && !data && !pathname.includes("login") && !pathname.includes("register")) {
+      router.push("/login");
+      return;
+    }
+
+    if (isSuccess && data && !user) {
+      console.log("setting user from API");
+      setUser(data);
+    }
+  }, [isPending, isSuccess, data, user]);
 
   return (
-    <div className="w-full py-4 px-3 flex items-center justify-between">
-      <p className="font-semibold text-xl md:text-2xl">Retrogoods Admin</p>
+    <>
+      {!pathname.includes("login") && !pathname.includes("register") && (
+        <div className="w-full py-4 px-3 flex items-center justify-between">
+          <p className="font-semibold text-xl md:text-2xl">Retrogoods Admin</p>
 
-      <div className="flex items-center gap-4">
-        {user && (
-          <>
-            <p className="font-medium">Products</p>
-            <p className="font-medium">Orders</p>
-          </>
-        )}
+          <div className="flex-1 flex justify-end items-center gap-4">
+            {user && (
+              <>
+                <p className="font-medium">Products</p>
+              </>
+            )}
 
-        <DropdownMenu>
-          <DropdownMenuTrigger>Open</DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => router.push("/profile")}>Profile</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      <UserLogProcess />
-    </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => router.push("/profile")}>Profile</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
