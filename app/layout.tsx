@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Main from "@/components/common/Main";
+import TanstackProvider from "@/components/TanstackProvider";
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -22,7 +23,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} antialiased`}>
         <div className="w-full mx-auto font-geist">
-          <Main children={children} />
+          <TanstackProvider>
+            <Main children={children} />
+          </TanstackProvider>
         </div>
       </body>
     </html>
