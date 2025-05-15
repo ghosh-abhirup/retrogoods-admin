@@ -6,7 +6,7 @@ import FormInput from "@/components/common/Forms/FormInput";
 import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "@/services/LoginProcessServices";
 import * as Yup from "yup";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { AxiosResponseHeaders } from "axios";
 import { useRouter } from "next/navigation";
 import useUserStore from "@/store/UserStore";
@@ -27,9 +27,10 @@ const validationSchema = Yup.object().shape({
 
 const RegisterPage = () => {
   const router = useRouter();
-  const { user } = useUserStore();
+  const { user, hideLoader } = useUserStore();
 
   useEffect(() => {
+    hideLoader();
     if (user) {
       router.push("/");
     }
@@ -79,6 +80,8 @@ const RegisterPage = () => {
           <FormSubmit isLoading={registerMutation.isPending}>Sign In</FormSubmit>
         </div>
       </FormikForm>
+
+      <Toaster />
     </div>
   );
 };

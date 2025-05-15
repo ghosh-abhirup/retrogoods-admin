@@ -24,7 +24,8 @@ export default function RootLayout({
       <body className={`${geistSans.variable} antialiased`}>
         <div className="w-full mx-auto font-geist">
           <TanstackProvider>
-            <Main children={children} />
+            {/* <Main children={children} /> */}
+            {children}
           </TanstackProvider>
         </div>
       </body>

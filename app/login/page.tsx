@@ -9,7 +9,7 @@ import FormInput from "@/components/common/Forms/FormInput";
 import { useMutation } from "@tanstack/react-query";
 import { loginUser } from "@/services/LoginProcessServices";
 import useUserStore from "@/store/UserStore";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { AxiosResponseHeaders } from "axios";
 
 const initialValues = {
@@ -23,10 +23,11 @@ const validationSchema = Yup.object().shape({
 });
 
 const LoginPage = () => {
-  const { setUser, user } = useUserStore();
+  const { setUser, user, hideLoader } = useUserStore();
   const router = useRouter();
 
   useEffect(() => {
+    hideLoader();
     if (user) {
       router.push("/");
     }
@@ -75,6 +76,7 @@ const LoginPage = () => {
           <FormSubmit isLoading={loginMutation.isPending}>Login</FormSubmit>
         </div>
       </FormikForm>
+      <Toaster />
     </div>
   );
 };

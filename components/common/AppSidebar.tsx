@@ -9,6 +9,8 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { FaUserCircle } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import useUserStore from "@/store/UserStore";
+import { useEffect } from "react";
+import Link from "next/link";
 
 const items = [
   {
@@ -43,10 +45,10 @@ const AppSidebar = () => {
                 {items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={pathname.includes(item.url)}>
-                      <a href={item.url}>
+                      <Link href={item.url}>
                         <item.icon />
                         <span>{item.title}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

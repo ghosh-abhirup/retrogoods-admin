@@ -1,24 +1,41 @@
 "use client";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import useUserStore from "@/store/UserStore";
 import Loader from "./Loader";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "./AppSidebar";
-import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import { getUser } from "@/services/UserServices";
+import { useQuery } from "@tanstack/react-query";
+import Cookies from "js-cookie";
 
 const Main = ({ children }: { children: ReactNode }) => {
-  useAuth();
-  const pathname = usePathname();
-  const { isLoader } = useUserStore();
+  const { isLoader, setUser, user } = useUserStore();
 
-  if (isLoader) {
+  const accessToken = Cookies.get("accessToken");
+  const router = useRouter();
+
+  const { data, isPending } = useQuery({
+    queryKey: ["get-user"],
+    queryFn: getUser,
+    enabled: !!accessToken && !user,
+  });
+
+  useEffect(() => {
+    if (data && !user) {
+      setUser(data);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (!accessToken) {
+      router.push("/login");
+    }
+  }, [accessToken]);
+
+  if (isPending && !user) {
     return <Loader />;
-  }
-
-  if (pathname.includes("login") || pathname.includes("register")) {
-    return children;
   }
 
   return (
