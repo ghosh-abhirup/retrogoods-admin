@@ -6,11 +6,13 @@ import FormikForm from "@/components/common/Forms/FormikForm";
 import * as Yup from "yup";
 import FormSubmit from "@/components/common/Forms/FormSubmit";
 import FormInput from "@/components/common/Forms/FormInput";
-import { useMutation } from "@tanstack/react-query";
-import { loginUser } from "@/services/LoginProcessServices";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { loginUser, refreshAccessToken } from "@/services/LoginProcessServices";
 import useUserStore from "@/store/UserStore";
 import toast, { Toaster } from "react-hot-toast";
 import { AxiosResponseHeaders } from "axios";
+import Cookies from "js-cookie";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 const initialValues = {
   email: "",
@@ -23,15 +25,32 @@ const validationSchema = Yup.object().shape({
 });
 
 const LoginPage = () => {
-  const { setUser, user, hideLoader } = useUserStore();
+  const { setUser, user, hideLoader, showLoader } = useUserStore();
   const router = useRouter();
 
   useEffect(() => {
     hideLoader();
+    const refreshToken = Cookies.get("refreshToken");
+
     if (user) {
       router.push("/");
+    } else if (refreshToken) {
+      fetchAccessTokenMutation.mutate();
     }
   }, []);
+
+  const fetchAccessTokenMutation = useMutation({
+    mutationKey: ["get-access-token"],
+    mutationFn: refreshAccessToken,
+
+    onSuccess: (res) => {
+      toast.success("Successfully logged in!", { duration: 2000 });
+      router.push("/");
+    },
+    onError: (error: AxiosResponseHeaders) => {
+      toast.error(error.response.data.message, { duration: 2000 });
+    },
+  });
 
   const loginMutation = useMutation({
     mutationFn: (payload: Object) => loginUser(payload),
@@ -53,20 +72,27 @@ const LoginPage = () => {
 
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center gap-4">
-      <div className="">
-        <p className="font-semibold text-2xl">Login to your account</p>
-        <div className="mt-2">
-          If you don't have an account,{" "}
-          <span
-            onClick={() => {
-              router.push("/register");
-            }}
-            className="font-medium text-blue-400 cursor-pointer"
-          >
-            sign in
-          </span>
+      {fetchAccessTokenMutation.isPending ? (
+        <div className="flex items-center justify-center gap-4">
+          <LoadingSpinner />
+          <p>Fetching refreshed access token...</p>
         </div>
-      </div>
+      ) : (
+        <div className="">
+          <p className="font-semibold text-2xl">Login to your account</p>
+          <div className="mt-2">
+            If you don't have an account,{" "}
+            <span
+              onClick={() => {
+                router.push("/register");
+              }}
+              className="font-medium text-blue-400 cursor-pointer"
+            >
+              sign in
+            </span>
+          </div>
+        </div>
+      )}
 
       <FormikForm initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmitHandler}>
         <div className="w-[30vw] flex flex-col items-center gap-4">

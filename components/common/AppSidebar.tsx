@@ -7,10 +7,14 @@ import { FiBox } from "react-icons/fi";
 import { IoMdLogOut } from "react-icons/io";
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaUserCircle } from "react-icons/fa";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import useUserStore from "@/store/UserStore";
 import { useEffect } from "react";
 import Link from "next/link";
+import { useMutation } from "@tanstack/react-query";
+import { logoutUser } from "@/services/LoginProcessServices";
+import toast from "react-hot-toast";
+import LoadingSpinner from "./LoadingSpinner";
 
 const items = [
   {
@@ -27,7 +31,21 @@ const items = [
 
 const AppSidebar = () => {
   const pathname = usePathname();
-  const { user } = useUserStore();
+  const { user, setUser } = useUserStore();
+  const router = useRouter();
+
+  const logoutMutation = useMutation({
+    mutationKey: ["logout-user"],
+    mutationFn: logoutUser,
+    onSuccess: () => {
+      setUser(null);
+      toast.success("Successfully logged out", { duration: 2000 });
+      router.push("/login");
+    },
+    onError: () => {
+      toast.error("Error logging out", { duration: 2000 });
+    },
+  });
 
   return (
     <>
@@ -80,10 +98,10 @@ const AppSidebar = () => {
                       </a>
                     </SidebarMenuButton>
                     <SidebarMenuButton asChild>
-                      <a>
-                        <IoMdLogOut />
+                      <p onClick={() => logoutMutation.mutate()}>
+                        {logoutMutation.isPending ? <LoadingSpinner /> : <IoMdLogOut />}
                         <span>Logout</span>
-                      </a>
+                      </p>
                     </SidebarMenuButton>
                   </div>
                 </HoverCardContent>
