@@ -9,12 +9,13 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { FaUserCircle } from "react-icons/fa";
 import { usePathname, useRouter } from "next/navigation";
 import useUserStore from "@/store/UserStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { logoutUser } from "@/services/LoginProcessServices";
 import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
+import ProfilePopup from "../ProfilePopup";
 
 const items = [
   {
@@ -33,6 +34,8 @@ const AppSidebar = () => {
   const pathname = usePathname();
   const { user, setUser } = useUserStore();
   const router = useRouter();
+
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const logoutMutation = useMutation({
     mutationKey: ["logout-user"],
@@ -92,10 +95,10 @@ const AppSidebar = () => {
                 <HoverCardContent className="w-60">
                   <div>
                     <SidebarMenuButton asChild>
-                      <a>
+                      <p onClick={() => setIsProfileModalOpen(true)}>
                         <IoSettingsOutline />
                         <span>Profile</span>
-                      </a>
+                      </p>
                     </SidebarMenuButton>
                     <SidebarMenuButton asChild>
                       <p onClick={() => logoutMutation.mutate()}>
@@ -110,6 +113,8 @@ const AppSidebar = () => {
           </SidebarFooter>
         )}
       </Sidebar>
+
+      {isProfileModalOpen && <ProfilePopup open={isProfileModalOpen} onClose={setIsProfileModalOpen} />}
     </>
   );
 };

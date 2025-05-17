@@ -6,11 +6,12 @@ interface props {
   type?: "button" | "submit" | "reset" | undefined;
   click: Function;
   disabled?: boolean;
+  style?: "outline" | "filled";
 }
 
-const Button = ({ click, type = "button", children, disabled }: props) => {
+const Button = ({ click, type = "button", children, disabled, style = "filled" }: props) => {
   return (
-    <button onClick={() => click()} type={type} disabled={disabled} className="common-button">
+    <button onClick={() => click()} type={type} disabled={disabled} className={`${style == "filled" ? "common-button" : "outline-button"}`}>
       {children}
     </button>
   );
