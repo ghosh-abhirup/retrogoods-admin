@@ -21,14 +21,14 @@ const validationSchema = Yup.object().shape({
   sku: Yup.string().required("Product SKU is required").label("sku"),
 });
 
-const AddProduct = ({ open, onChange }: { open: boolean; onChange: (v: boolean) => void }) => {
+const AddProduct = ({ open, onChange, callProduct }: { open: boolean; onChange: (v: boolean) => void; callProduct: () => void }) => {
   const addProductMutation = useMutation({
     mutationKey: ["add-product"],
     mutationFn: addProduct,
     onSuccess: () => {
       toast.success("Product Created", { duration: 2000 });
+      callProduct();
       onChange(false);
-      // call get again
     },
     onError: (err: AxiosError<any>) => {
       toast.error(err?.response?.data.message || "Issue in adding product", { duration: 2000 });
